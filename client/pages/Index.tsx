@@ -1,62 +1,87 @@
-import { DemoResponse } from "@shared/api";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
+import DashboardLayout from "@/components/layout/DashboardLayout";
+import FiltersBar from "@/components/dashboard/FiltersBar";
+import StatCard from "@/components/dashboard/StatCard";
+import TrendChart from "@/components/dashboard/TrendChart";
+import RiskMatrix from "@/components/dashboard/RiskMatrix";
+import MapboxMap from "@/components/dashboard/MapboxMap";
+import { useFilters } from "@/store/filters";
+import { useQuery } from "@tanstack/react-query";
+import { fetchForecastMetrics, fetchTrend } from "@/lib/api";
+import { Bolt, CalendarClock, Percent, TrendingUp } from "lucide-react";
 
 export default function Index() {
-  const [exampleFromServer, setExampleFromServer] = useState("");
-  // Fetch users on component mount
-  useEffect(() => {
-    fetchDemo();
-  }, []);
+  const { store, family, item, dateRange } = useFilters();
+  const params = useMemo(() => {
+    const p = new URLSearchParams();
+    p.set("store", store);
+    p.set("family", family);
+    p.set("item", item);
+    p.set("dateRange", dateRange);
+    return p;
+  }, [store, family, item, dateRange]);
 
-  // Example of how to fetch data from the server (if needed)
-  const fetchDemo = async () => {
-    try {
-      const response = await fetch("/api/demo");
-      const data = (await response.json()) as DemoResponse;
-      setExampleFromServer(data.message);
-    } catch (error) {
-      console.error("Error fetching hello:", error);
-    }
-  };
+  const metricsQuery = useQuery({
+    queryKey: ["metrics", params.toString()],
+    queryFn: () => fetchForecastMetrics(params),
+  });
+  const trendQuery = useQuery({
+    queryKey: ["trend", params.toString()],
+    queryFn: () => fetchTrend(params),
+  });
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
-      <div className="text-center">
-        {/* TODO: FUSION_GENERATION_APP_PLACEHOLDER replace everything here with the actual app! */}
-        <h1 className="text-2xl font-semibold text-slate-800 flex items-center justify-center gap-3">
-          <svg
-            className="animate-spin h-8 w-8 text-slate-400"
-            viewBox="0 0 50 50"
-          >
-            <circle
-              className="opacity-30"
-              cx="25"
-              cy="25"
-              r="20"
-              stroke="currentColor"
-              strokeWidth="5"
-              fill="none"
-            />
-            <circle
-              className="text-slate-600"
-              cx="25"
-              cy="25"
-              r="20"
-              stroke="currentColor"
-              strokeWidth="5"
-              fill="none"
-              strokeDasharray="100"
-              strokeDashoffset="75"
-            />
-          </svg>
-          Generating your app...
-        </h1>
-        <p className="mt-4 text-slate-600 max-w-md">
-          Watch the chat on the left for updates that might need your attention
-          to finish generating
-        </p>
-        <p className="mt-4 hidden max-w-md">{exampleFromServer}</p>
+    <DashboardLayout title="Weekly/Monthly Planning" subtitle="Tactical trends & promotional planning">
+      <div className="space-y-4">
+        <FiltersBar />
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+          <StatCard
+            title="Next 7 Days Forecast"
+            value={metricsQuery.data ? `$${metricsQuery.data.next7Days.toLocaleString()}` : "—"}
+            sub={metricsQuery.data ? `${metricsQuery.data.delta7DaysPct > 0 ? "+" : ""}${metricsQuery.data.delta7DaysPct}% vs last week` : "Loading..."}
+            icon={<CalendarClock className="size-5" />}
+          />
+          <StatCard
+            title="Next 30 Days Forecast"
+            value={metricsQuery.data ? `$${metricsQuery.data.next30Days.toLocaleString()}` : "—"}
+            sub={metricsQuery.data ? `${metricsQuery.data.delta30DaysPct > 0 ? "+" : ""}${metricsQuery.data.delta30DaysPct}% vs last month` : "Loading..."}
+            icon={<TrendingUp className="size-5" />}
+          />
+          <StatCard
+            title="Promotional impact"
+            value={metricsQuery.data ? `${metricsQuery.data.promoImpactPct}%` : "—"}
+            sub="Average sales lift"
+            icon={<Percent className="size-5" />}
+          />
+          <StatCard
+            title="System Status"
+            value="Normal"
+            sub="All services operational"
+            icon={<Bolt className="size-5" />}
+          />
+        </div>
+
+        <div className="rounded-lg border bg-card p-4">
+          <div className="mb-2 flex items-center justify-between">
+            <div className="text-sm font-medium">Sales Forecast Trend</div>
+          </div>
+          {trendQuery.data ? (
+            <TrendChart data={trendQuery.data.points} />
+          ) : (
+            <div className="h-[300px] animate-pulse rounded-md bg-muted" />
+          )}
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="rounded-lg border bg-card p-4">
+            <div className="text-sm font-medium mb-2">Holiday Demand Forecast</div>
+            <div className="text-sm text-muted-foreground">Model projects higher demand near holidays; adjust replenishment and promotions accordingly.</div>
+          </div>
+          <RiskMatrix />
+        </div>
+
+        <MapboxMap />
       </div>
-    </div>
+    </DashboardLayout>
   );
 }

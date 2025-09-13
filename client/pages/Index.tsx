@@ -9,6 +9,7 @@ import { useFilters } from "@/store/filters";
 import { useQuery } from "@tanstack/react-query";
 import { fetchForecastMetrics, fetchTrend } from "@/lib/api";
 import { Bolt, CalendarClock, Percent, TrendingUp } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function Index() {
   const { store, family, item, dateRange } = useFilters();

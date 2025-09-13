@@ -2,6 +2,8 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { handleDemo } from "./routes/demo";
+import { metricsHandler, trendHandler } from "./routes/forecast";
+import { replenishmentHandler } from "./routes/operations";
 
 export function createServer() {
   const app = express();
@@ -18,6 +20,13 @@ export function createServer() {
   });
 
   app.get("/api/demo", handleDemo);
+
+  // Forecasting routes
+  app.get("/api/forecast/metrics", metricsHandler);
+  app.get("/api/forecast/trend", trendHandler);
+
+  // Operations routes
+  app.get("/api/operations/replenishment", replenishmentHandler);
 
   return app;
 }

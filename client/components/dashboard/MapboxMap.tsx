@@ -22,7 +22,9 @@ export default function MapboxMap() {
     return (
       <div className="rounded-lg border bg-card p-4">
         <div className="text-sm font-medium mb-1">Store Map</div>
-        <div className="text-sm text-muted-foreground">Set VITE_MAPBOX_TOKEN to enable the interactive map.</div>
+        <div className="text-sm text-muted-foreground">
+          Set VITE_MAPBOX_TOKEN to enable the interactive map.
+        </div>
       </div>
     );
   }

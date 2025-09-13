@@ -32,27 +32,57 @@ export default function Index() {
   });
 
   return (
-    <DashboardLayout title="Weekly/Monthly Planning" subtitle="Tactical trends & promotional planning">
+    <DashboardLayout
+      title="Weekly/Monthly Planning"
+      subtitle="Tactical trends & promotional planning"
+    >
       <div className="space-y-4">
-        <motion.div initial={{opacity:0, y:8}} animate={{opacity:1, y:0}} transition={{duration:0.3}}>
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
           <FiltersBar />
         </motion.div>
-        <motion.div initial={{opacity:0, y:8}} animate={{opacity:1, y:0}} transition={{duration:0.35}} className="grid grid-cols-1 gap-3 md:grid-cols-4">
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35 }}
+          className="grid grid-cols-1 gap-3 md:grid-cols-4"
+        >
           <StatCard
             title="Next 7 Days Forecast"
-            value={metricsQuery.data ? `$${metricsQuery.data.next7Days.toLocaleString()}` : "—"}
-            sub={metricsQuery.data ? `${metricsQuery.data.delta7DaysPct > 0 ? "+" : ""}${metricsQuery.data.delta7DaysPct}% vs last week` : "Loading..."}
+            value={
+              metricsQuery.data
+                ? `$${metricsQuery.data.next7Days.toLocaleString()}`
+                : "—"
+            }
+            sub={
+              metricsQuery.data
+                ? `${metricsQuery.data.delta7DaysPct > 0 ? "+" : ""}${metricsQuery.data.delta7DaysPct}% vs last week`
+                : "Loading..."
+            }
             icon={<CalendarClock className="size-5" />}
           />
           <StatCard
             title="Next 30 Days Forecast"
-            value={metricsQuery.data ? `$${metricsQuery.data.next30Days.toLocaleString()}` : "—"}
-            sub={metricsQuery.data ? `${metricsQuery.data.delta30DaysPct > 0 ? "+" : ""}${metricsQuery.data.delta30DaysPct}% vs last month` : "Loading..."}
+            value={
+              metricsQuery.data
+                ? `$${metricsQuery.data.next30Days.toLocaleString()}`
+                : "—"
+            }
+            sub={
+              metricsQuery.data
+                ? `${metricsQuery.data.delta30DaysPct > 0 ? "+" : ""}${metricsQuery.data.delta30DaysPct}% vs last month`
+                : "Loading..."
+            }
             icon={<TrendingUp className="size-5" />}
           />
           <StatCard
             title="Promotional impact"
-            value={metricsQuery.data ? `${metricsQuery.data.promoImpactPct}%` : "—"}
+            value={
+              metricsQuery.data ? `${metricsQuery.data.promoImpactPct}%` : "—"
+            }
             sub="Average sales lift"
             icon={<Percent className="size-5" />}
           />
@@ -64,7 +94,12 @@ export default function Index() {
           />
         </motion.div>
 
-        <motion.div initial={{opacity:0, y:8}} animate={{opacity:1, y:0}} transition={{duration:0.4}} className="rounded-lg border bg-card p-4">
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="rounded-lg border bg-card p-4"
+        >
           <div className="mb-2 flex items-center justify-between">
             <div className="text-sm font-medium">Sales Forecast Trend</div>
           </div>
@@ -75,15 +110,29 @@ export default function Index() {
           )}
         </motion.div>
 
-        <motion.div initial={{opacity:0, y:8}} animate={{opacity:1, y:0}} transition={{duration:0.45}} className="grid gap-4 md:grid-cols-2">
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45 }}
+          className="grid gap-4 md:grid-cols-2"
+        >
           <div className="rounded-lg border bg-card p-4">
-            <div className="text-sm font-medium mb-2">Holiday Demand Forecast</div>
-            <div className="text-sm text-muted-foreground">Model projects higher demand near holidays; adjust replenishment and promotions accordingly.</div>
+            <div className="text-sm font-medium mb-2">
+              Holiday Demand Forecast
+            </div>
+            <div className="text-sm text-muted-foreground">
+              Model projects higher demand near holidays; adjust replenishment
+              and promotions accordingly.
+            </div>
           </div>
           <RiskMatrix />
         </motion.div>
 
-        <motion.div initial={{opacity:0, y:8}} animate={{opacity:1, y:0}} transition={{duration:0.5}}>
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
           <MapboxMap />
         </motion.div>
       </div>

@@ -17,13 +17,17 @@ function parseFilters(query: any): FiltersPayload {
   const store = String(query.store ?? "All Stores");
   const family = String(query.family ?? "All Families");
   const item = String(query.item ?? "All Items");
-  const dateRange = (String(query.dateRange ?? "30d") as FiltersPayload["dateRange"]);
+  const dateRange = String(
+    query.dateRange ?? "30d",
+  ) as FiltersPayload["dateRange"];
   return { store, family, item, dateRange };
 }
 
 export const metricsHandler: RequestHandler = (req, res) => {
   const filters = parseFilters(req.query);
-  const seed = hash(`${filters.store}|${filters.family}|${filters.item}|${filters.dateRange}`);
+  const seed = hash(
+    `${filters.store}|${filters.family}|${filters.item}|${filters.dateRange}`,
+  );
   const rnd = seededRand(seed);
   const base = 100000 + Math.floor(rnd() * 100000);
   const delta7 = Math.round((rnd() * 2 - 1) * 10 * 10) / 10; // -10..10
@@ -42,9 +46,12 @@ export const metricsHandler: RequestHandler = (req, res) => {
 
 export const trendHandler: RequestHandler = (req, res) => {
   const filters = parseFilters(req.query);
-  const seed = hash(`${filters.store}|${filters.family}|${filters.item}|${filters.dateRange}|trend`);
+  const seed = hash(
+    `${filters.store}|${filters.family}|${filters.item}|${filters.dateRange}|trend`,
+  );
   const rnd = seededRand(seed);
-  const days = filters.dateRange === "7d" ? 7 : filters.dateRange === "90d" ? 90 : 30;
+  const days =
+    filters.dateRange === "7d" ? 7 : filters.dateRange === "90d" ? 90 : 30;
   const today = new Date();
   const points: TrendResponse["points"] = [];
   let level = 10000 + rnd() * 10000;
@@ -52,7 +59,10 @@ export const trendHandler: RequestHandler = (req, res) => {
     level += (rnd() - 0.45) * 800;
     const date = new Date(today);
     date.setDate(today.getDate() - i);
-    const sales = Math.max(2000, Math.round(level + Math.sin(i / 3) * 1200 + (rnd() - 0.5) * 500));
+    const sales = Math.max(
+      2000,
+      Math.round(level + Math.sin(i / 3) * 1200 + (rnd() - 0.5) * 500),
+    );
     points.push({ date: date.toISOString().slice(0, 10), sales });
   }
   res.json({ points });

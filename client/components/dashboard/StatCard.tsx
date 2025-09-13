@@ -1,7 +1,17 @@
 import { ReactNode } from "react";
 import { Card } from "@/components/ui/card";
 
-export default function StatCard({ title, value, sub, icon }: { title: string; value: string; sub?: string; icon?: ReactNode; }) {
+export default function StatCard({
+  title,
+  value,
+  sub,
+  icon,
+}: {
+  title: string;
+  value: string;
+  sub?: string;
+  icon?: ReactNode;
+}) {
   return (
     <Card className="p-4">
       <div className="flex items-start justify-between">

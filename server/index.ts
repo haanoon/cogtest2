@@ -1,3 +1,5 @@
+import { familiesHandler } from "./routes/families";
+import { categoriesHandler } from "./routes/categories";
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
@@ -7,7 +9,8 @@ import { replenishmentHandler } from "./routes/operations";
 
 export function createServer() {
   const app = express();
-
+  app.get("/api/families", familiesHandler);
+  app.get("/api/categories", categoriesHandler);
   // Middleware
   app.use(cors());
   app.use(express.json());

@@ -26,6 +26,7 @@
     "echarts-for-react": "^3.0.2",
     "express": "^5.1.0",
     "mapbox-gl": "^3.15.0",
+    "react-datepicker": "^8.7.0",
     "zod": "^3.25.76",
     "zustand": "^5.0.8"
   },
@@ -67,6 +68,7 @@
     "@types/express": "^5.0.3",
     "@types/node": "^24.2.1",
     "@types/react": "^18.3.23",
+    "@types/react-datepicker": "^7.0.0",
     "@types/react-dom": "^18.3.7",
     "@types/three": "^0.176.0",
     "@vitejs/plugin-react-swc": "^4.0.0",

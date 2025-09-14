@@ -90,9 +90,9 @@ export default function DashboardLayout({
                   label="Day-to-Day Operations"
                 />
                 <NavItem
-                  to="/insights"
+                  to="/Insights"
                   icon={ShieldCheck}
-                  label="Strategic Questions"
+                  label="Advanced Insights"
                 />
               </SidebarMenu>
             </SidebarGroupContent>

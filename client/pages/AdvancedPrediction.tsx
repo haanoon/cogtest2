@@ -2,6 +2,18 @@ import React, { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
+// One-hot encoding options
+const families = [
+  "AUTOMOTIVE", "BEAUTY", "CELEBRATION", "CLEANING", "CLOTHING", "FOODS",
+  "GROCERY", "HARDWARE", "HOME", "LAWN AND GARDEN", "LIQUOR,WINE,BEER",
+  "PET SUPPLIES", "STATIONERY"
+];
+
+const cities = [
+  "Ambato", "Babahoyo", "Cayambe", "Cuenca", "Daule", "El Carmen", "Esmeraldas",
+  "Guaranda", "Guayaquil", "Ibarra", "Latacunga", "Libertad", "Loja", "Machala",
+  "Manta", "Playas", "Puyo", "Quevedo", "Quito", "Riobamba", "Salinas", "Santo Domingo"
+];
 
 const SalesPredictionApp: React.FC = () => {
   const [storeNumber, setStoreNumber] = useState<number>(0);
@@ -15,6 +27,7 @@ const SalesPredictionApp: React.FC = () => {
   const [state, setState] = useState<string>("Pichincha");
   const [crudeOilPrice, setCrudeOilPrice] = useState<number>(0);
   const [prediction, setPrediction] = useState<string | null>(null);
+  const [city, setCity] = useState<string>("Quito");
 
   const handleDateChange = (d: Date | null) => {
     setDate(d);
@@ -33,21 +46,42 @@ const SalesPredictionApp: React.FC = () => {
     const month = date.getMonth() + 1; // JS months are 0-based
     const year = date.getFullYear();
 
-    const payload = {
-      store_number: storeNumber,
-      store_type: storeType,
-      product_family: productFamily,
-      cluster,
-      day,
-      month,
-      year,
-      day_of_week: dayOfWeek,
-      promotion,
-      transactions,
-      state,
-      crude_oil_price: crudeOilPrice,
+    // One-hot encoding for family
+    const familyFields = families.reduce((acc, fam) => {
+      acc[`family_${fam}`] = fam === productFamily ? 1.0 : 0.0;
+      return acc;
+    }, {} as Record<string, number>);
+
+    // One-hot encoding for city
+    const cityFields = cities.reduce((acc, c) => {
+      acc[`city_${c}`] = c === city ? 1.0 : 0.0;
+      return acc;
+    }, {} as Record<string, number>);
+
+    // Example: hardcoded holiday_type fields (customize as needed)
+    const holidayTypeFields = {
+      holiday_type_Additional: 0.0,
+      holiday_type_Bridge: 0.0,
+      holiday_type_Event: 0.0,
+      holiday_type_Holiday: 0.0,
+      holiday_type_Transfer: 1.0,
     };
 
+    const payload = {
+      store_nbr: storeNumber,
+      sales: 0, // Placeholder, update as needed
+      onpromotion: promotion,
+      cluster,
+      transactions,
+      dcoilwtico: crudeOilPrice,
+      year,
+      month,
+      day,
+      ...familyFields,
+      ...cityFields,
+      ...holidayTypeFields,
+    };
+    console.log("Payload:", payload);
     try {
       const response = await fetch("http://localhost:5000/predict", {
         method: "POST",
@@ -107,12 +141,9 @@ const SalesPredictionApp: React.FC = () => {
             onChange={(e) => setProductFamily(e.target.value)}
             className="border p-2 rounded w-full"
           >
-            <option value="AUTOMOTIVE">AUTOMOTIVE</option>
-            <option value="BEAUTY">BEAUTY</option>
-            <option value="CLOTHING">CLOTHING</option>
-            <option value="FOODS">FOODS</option>
-            <option value="GROCERY">GROCERY</option>
-            <option value="LIQUOR,WINE,BEER">LIQUOR, WINE, BEER</option>
+            {families.map((fam) => (
+              <option key={fam} value={fam}>{fam}</option>
+            ))}
           </select>
         </div>
 
@@ -198,6 +229,20 @@ const SalesPredictionApp: React.FC = () => {
             <option value="Pichincha">Pichincha</option>
             <option value="Guayas">Guayas</option>
             <option value="Azuay">Azuay</option>
+          </select>
+        </div>
+
+        {/* City Selector */}
+        <div>
+          <label className="block mb-2">City</label>
+          <select
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            className="border p-2 rounded w-full"
+          >
+            {cities.map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
           </select>
         </div>
       </div>

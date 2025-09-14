@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { useFilters, DateRangeKey } from "@/store/filters";
 import {
   Select,
@@ -11,26 +11,10 @@ import { Button } from "@/components/ui/button";
 import { CalendarIcon, Filter } from "lucide-react";
 
 const stores = ["All Stores", "Quito Centro", "Guayaquil Norte", "Cuenca"];
-const families = [
-  "All Families",
-  "BEVERAGES",
-  "BREAD/BAKERY",
-  "DAIRY",
-  "PRODUCE",
-  "CLEANING",
-  "POULTRY",
-];
-const items = [
-  "All Items",
-  "Coca Cola 2L",
-  "White Bread",
-  "Milk 1L",
-  "Bananas 1kg",
-  "Detergent",
-  "Chicken Breast",
-];
+// Families will be fetched from the backend
 
 export default function FiltersBar() {
+
   const {
     store,
     family,
@@ -41,6 +25,34 @@ export default function FiltersBar() {
     setItem,
     setDateRange,
   } = useFilters();
+
+  // Track selected family id
+  const [selectedFamilyId, setSelectedFamilyId] = useState<number>(0);
+
+  // Fetch families from API
+  const [families, setFamilies] = useState<{ id: number; family: string }[]>([
+    { id: 0, family: "All Families" },
+  ]);
+  useEffect(() => {
+    fetch("/api/families")
+      .then((res) => res.json())
+      .then((data) => {
+        setFamilies([{ id: 0, family: "All Families" }, ...(data.families || [])]);
+      })
+      .catch(() => setFamilies([{ id: 0, family: "All Families" }]));
+  }, []);
+  // Categories state and fetch based on family
+  const [categories, setCategories] = useState<string[]>(["All Categories"]);
+  useEffect(() => {
+    if (selectedFamilyId && selectedFamilyId !== 0) {
+      fetch(`/api/categories?familyId=${selectedFamilyId}`)
+        .then((res) => res.json())
+        .then((data) => setCategories(["All Categories", ...(data.categories || [])]))
+        .catch(() => setCategories(["All Categories"]));
+    } else {
+      setCategories(["All Categories"]);
+    }
+  }, [selectedFamilyId]);
 
   const params = useMemo(() => {
     const p = new URLSearchParams();
@@ -68,14 +80,21 @@ export default function FiltersBar() {
           ))}
         </SelectContent>
       </Select>
-      <Select value={family} onValueChange={setFamily}>
+      <Select
+        value={String(selectedFamilyId)}
+        onValueChange={(val) => {
+          const fam = families.find((f) => String(f.id) === val);
+          setSelectedFamilyId(Number(val));
+          setFamily(fam ? fam.family : "All Families");
+        }}
+      >
         <SelectTrigger className="w-[170px]">
           <SelectValue placeholder="Family" />
         </SelectTrigger>
         <SelectContent>
-          {families.map((s) => (
-            <SelectItem key={s} value={s}>
-              {s}
+          {families.map((f) => (
+            <SelectItem key={f.id} value={String(f.id)}>
+              {f.family}
             </SelectItem>
           ))}
         </SelectContent>
@@ -85,7 +104,7 @@ export default function FiltersBar() {
           <SelectValue placeholder="Item" />
         </SelectTrigger>
         <SelectContent>
-          {items.map((s) => (
+          {categories.map((s) => (
             <SelectItem key={s} value={s}>
               {s}
             </SelectItem>

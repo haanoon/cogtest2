@@ -6,6 +6,7 @@ import cors from "cors";
 import { handleDemo } from "./routes/demo";
 import { metricsHandler, trendHandler } from "./routes/forecast";
 import { replenishmentHandler } from "./routes/operations";
+import { predictHandler } from "./routes/forecast";
 
 export function createServer() {
   const app = express();
@@ -27,6 +28,7 @@ export function createServer() {
   // Forecasting routes
   app.get("/api/forecast/metrics", metricsHandler);
   app.get("/api/forecast/trend", trendHandler);
+  app.post("/api/forecast/predict", predictHandler);
 
   // Operations routes
   app.get("/api/operations/replenishment", replenishmentHandler);

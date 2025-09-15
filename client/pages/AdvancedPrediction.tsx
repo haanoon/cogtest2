@@ -14,6 +14,13 @@ const cities = [
   "Guaranda", "Guayaquil", "Ibarra", "Latacunga", "Libertad", "Loja", "Machala",
   "Manta", "Playas", "Puyo", "Quevedo", "Quito", "Riobamba", "Salinas", "Santo Domingo"
 ];
+const holidayTypes = [
+  "None",
+  "National Holiday",
+  "Regional Holiday",
+  "Local Holiday",
+  "Special Event",
+];
 
 const SalesPredictionApp: React.FC = () => {
   const [storeNumber, setStoreNumber] = useState<number>(0);
@@ -23,6 +30,7 @@ const SalesPredictionApp: React.FC = () => {
   const [date, setDate] = useState<Date | null>(null);
   const [dayOfWeek, setDayOfWeek] = useState<number>(0);
   const [promotion, setPromotion] = useState<number>(0);
+  const [holidayType, setHolidayType] = useState<string>("None");
   const [transactions, setTransactions] = useState<number>(0);
   const [state, setState] = useState<string>("Pichincha");
   const [crudeOilPrice, setCrudeOilPrice] = useState<number>(0);
@@ -58,49 +66,43 @@ const SalesPredictionApp: React.FC = () => {
       return acc;
     }, {} as Record<string, number>);
 
-    // Example: hardcoded holiday_type fields (customize as needed)
-    const holidayTypeFields = {
-      holiday_type_Additional: 0.0,
-      holiday_type_Bridge: 0.0,
-      holiday_type_Event: 0.0,
-      holiday_type_Holiday: 0.0,
-      holiday_type_Transfer: 1.0,
-    };
+    //One-hot encoding holiday_type fields (customize as needed)
+    const holidayFields = holidayTypes.reduce((acc, fam) => {
+      acc[`family_${fam}`] = fam === productFamily ? 1.0 : 0.0;
+      return acc;
+    }, {} as Record<string, number>);
 
     const payload = {
       store_nbr: storeNumber,
-      sales: 0, // Placeholder, update as needed
       onpromotion: promotion,
-      cluster,
-      transactions,
+      cluster: cluster,
+      transactions: transactions,
       dcoilwtico: crudeOilPrice,
-      year,
-      month,
-      day,
+      year: year,
+      month: month,
+      day: day,
       ...familyFields,
       ...cityFields,
-      ...holidayTypeFields,
+      ...holidayFields,
     };
-    console.log("Payload:", payload);
     try {
-      const response = await fetch("http://localhost:5000/predict", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+    const response = await fetch("http://localhost:5000/forecast", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch prediction");
-      }
-
-      const data = await response.json();
-      setPrediction(data.prediction ?? "No prediction returned");
-    } catch (error) {
-      console.error("Error:", error);
-      setPrediction("Error fetching prediction");
+    if (!response.ok) {
+      throw new Error("Prediction request failed");
     }
-  };
 
+    const data = await response.json();
+    setPrediction(data.sales); // assuming backend returns { sales: number }
+  } catch (err) {
+    console.error(err);
+    setPrediction("Error fetching prediction");
+  }
+};
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">Sales Prediction App</h1>
@@ -182,6 +184,23 @@ const SalesPredictionApp: React.FC = () => {
           )}
         </div>
 
+        {/* Holiday Type */}
+<div>
+  <label className="block mb-2">Holiday Type</label>
+  <select
+    value={holidayType}
+    onChange={(e) => setHolidayType(e.target.value)}
+    className="border p-2 rounded w-full"
+  >
+    {holidayTypes.map((holiday) => (
+      <option key={holiday} value={holiday}>
+        {holiday}
+      </option>
+    ))}
+  </select>
+</div>
+
+
         {/* Promotion */}
         <div>
           <label className="block mb-2">Number of Items on Promotion</label>
@@ -220,15 +239,17 @@ const SalesPredictionApp: React.FC = () => {
 
         {/* State */}
         <div>
-          <label className="block mb-2">State Where the Store is Located</label>
+          <label className="block mb-2">City Where the Store is Located</label>
           <select
             value={state}
             onChange={(e) => setState(e.target.value)}
             className="border p-2 rounded w-full"
           >
-            <option value="Pichincha">Pichincha</option>
-            <option value="Guayas">Guayas</option>
-            <option value="Azuay">Azuay</option>
+            {cities.map((cities) => (
+            <option key={cities} value={cities}>
+            {cities}
+      </option>
+    ))}
           </select>
         </div>
 

@@ -1,3 +1,4 @@
+
 import { RequestHandler } from "express";
 import { ForecastMetrics, TrendResponse, FiltersPayload } from "@shared/api";
 
@@ -67,3 +68,19 @@ export const trendHandler: RequestHandler = (req, res) => {
   }
   res.json({ points });
 };
+
+
+
+
+
+export const predictHandler: RequestHandler = (req, res) => {
+  const payload = req.body; // this is the JSON you POST from React
+
+  const { store_nbr, cluster, year, month, day } = payload;
+
+  const base = store_nbr * 100 + cluster * 50;
+  const sales = Math.round(base + (year + month + day) % 1000);
+
+  res.json({ sales }); 
+};
+

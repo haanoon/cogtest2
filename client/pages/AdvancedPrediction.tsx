@@ -1,12 +1,38 @@
 import React, { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-
+import { modelForecastHandler } from "server/routes/modelForecast";
 // One-hot encoding options
 const families = [
   "AUTOMOTIVE", "BEAUTY", "CELEBRATION", "CLEANING", "CLOTHING", "FOODS",
   "GROCERY", "HARDWARE", "HOME", "LAWN AND GARDEN", "LIQUOR,WINE,BEER",
   "PET SUPPLIES", "STATIONERY"
+];
+const states = [
+  "Azuay",
+  "Bolivar",
+  "Cañar",
+  "Carchi",
+  "Chimborazo",
+  "Cotopaxi",
+  "El Oro",
+  "Esmeraldas",
+  "Galápagos",
+  "Guayas",
+  "Imbabura",
+  "Loja",
+  "Los Ríos",
+  "Manabí",
+  "Morona Santiago",
+  "Napo",
+  "Orellana",
+  "Pastaza",
+  "Pichincha",
+  "Santa Elena",
+  "Santo Domingo de los Tsáchilas",
+  "Sucumbíos",
+  "Tungurahua",
+  "Zamora Chinchipe"
 ];
 
 const cities = [
@@ -239,15 +265,15 @@ const SalesPredictionApp: React.FC = () => {
 
         {/* State */}
         <div>
-          <label className="block mb-2">City Where the Store is Located</label>
+          <label className="block mb-2">State Where the Store is Located</label>
           <select
             value={state}
             onChange={(e) => setState(e.target.value)}
             className="border p-2 rounded w-full"
           >
-            {cities.map((cities) => (
-            <option key={cities} value={cities}>
-            {cities}
+            {states.map((states) => (
+            <option key={states} value={states}>
+            {states}
       </option>
     ))}
           </select>
